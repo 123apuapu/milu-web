@@ -12,7 +12,7 @@ export default function Login() {
   const navigate = useNavigate();
   const setAuthUser = useAuthStore((s) => s.setUser);
   const setToken = useAuthStore((s) => s.setToken);
-  const setMatrixClient = useAuthStore((s) => s.setMatrixClient);
+  const setMatrixInfo = useAuthStore((s) => s.setMatrixInfo);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,11 +34,13 @@ export default function Login() {
         isVerified: localUser.isVerified || false,
         balance: localUser.balance || 0,
       });
+      setToken(data.local_token);
+      setMatrixInfo(data.access_token, data.user_id, data.device_id || '');
 
-      // 初始化 Matrix 客户端（后台连接用）
+      // 初始化 Matrix 客户端
       try {
-        const mc = initMatrixClient('https://matrix.4.dpjp.cn', data.access_token, data.user_id);
-        setMatrixClient(mc);
+        const deviceId = data.device_id || `web_${Date.now()}`;
+        initMatrixClient('https://matrix.4.dpjp.cn', data.access_token, data.user_id, deviceId);
       } catch {}
 
       // 获取完整用户资料

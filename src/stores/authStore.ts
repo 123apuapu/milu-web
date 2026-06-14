@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { initMatrixClient } from '../lib/matrix';
 
 export interface UserProfile {
   id: string;
@@ -15,13 +16,16 @@ export interface UserProfile {
 
 interface AuthState {
   user: UserProfile | null;
-  token: string | null;
-  matrixClient: any | null;
+  token: string | null;        // JWT 本地用户令牌
+  matrixToken: string | null;  // Matrix access_token
+  matrixUserId: string | null;
+  matrixDeviceId: string | null;
   setUser: (user: UserProfile) => void;
   setToken: (token: string) => void;
-  setMatrixClient: (client: any) => void;
+  setMatrixInfo: (accessToken: string, userId: string, deviceId: string) => void;
   logout: () => void;
   isAuthenticated: () => boolean;
+  initMatrixOnLoad: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -29,13 +33,31 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
-      matrixClient: null,
+      matrixToken: null,
+      matrixUserId: null,
+      matrixDeviceId: null,
       setUser: (user) => set({ user }),
       setToken: (token) => set({ token }),
-      setMatrixClient: (client) => set({ matrixClient: client }),
-      logout: () => set({ user: null, token: null, matrixClient: null }),
+      setMatrixInfo: (accessToken, userId, deviceId) => set({ matrixToken: accessToken, matrixUserId: userId, matrixDeviceId: deviceId }),
+      logout: () => set({ user: null, token: null, matrixToken: null, matrixUserId: null, matrixDeviceId: null }),
       isAuthenticated: () => !!get().token,
+      initMatrixOnLoad: () => {
+        const { matrixToken, matrixUserId, matrixDeviceId } = get();
+        if (matrixToken && matrixUserId) {
+          const deviceId = matrixDeviceId || `web_${Date.now()}`;
+          try { initMatrixClient('https://matrix.4.dpjp.cn', matrixToken, matrixUserId, deviceId); } catch {}
+        }
+      },
     }),
-    { name: 'milu-auth' }
+    {
+      name: 'milu-auth',
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        matrixToken: state.matrixToken,
+        matrixUserId: state.matrixUserId,
+        matrixDeviceId: state.matrixDeviceId,
+      }),
+    }
   )
 );

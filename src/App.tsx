@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/authStore';
+import { onIncomingCall } from './lib/matrix';
+import CallScreen from './components/CallScreen';
 import Layout from './components/Layout';
 import Messages from './pages/Messages';
 import Contacts from './pages/Contacts';
@@ -26,8 +29,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [incomingCall, setIncomingCall] = useState<{roomId: string; roomName: string; callType: 'voice' | 'video'} | null>(null);
+
+  useEffect(() => {
+    const unsub = onIncomingCall((roomId, callType) => {
+      setIncomingCall({ roomId, roomName: roomId, callType });
+    });
+    return unsub;
+  }, []);
+
   return (
-    <Routes>
+    <>
+      <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route
@@ -52,5 +65,18 @@ export default function App() {
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
-  );
+
+    {/* 来电界面 */}
+    {incomingCall && (
+      <CallScreen
+        roomName={incomingCall.roomName}
+        direction="incoming"
+        callType={incomingCall.callType}
+        callState="ringing"
+        onAnswer={() => {}}
+        onHangup={() => setIncomingCall(null)}
+      />
+    )}
+  </>
+);
 }
