@@ -1,122 +1,110 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getMatrixClient, getRoomMessages, sendMessage, onMessage } from '../lib/matrix';
-import CallScreen from '../components/CallScreen';
+import api from '../lib/api';
+import { startCall } from '../lib/webrtc';
+import { useAuthStore } from '../stores/authStore';
 
 export default function ChatRoom() {
   const { roomId } = useParams() as { roomId: string };
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState('');
   const [roomName, setRoomName] = useState('聊天');
-  const [callActive, setCallActive] = useState<'voice' | 'video' | null>(null);
-  const [callState, setCallState] = useState<'calling' | 'ringing' | 'connected'>('calling');
-
-  const startCall = (type: 'voice' | 'video') => {
-    const mc = getMatrixClient();
-    if (!mc) { alert('Matrix客户端未就绪'); return; }
-    setCallActive(type);
-    setCallState('calling');
-    try {
-      const call = mc.createCall(roomId);
-      if (!call) { alert('无法创建通话'); return; }
-      call.placeCall(true, type === 'video');
-      setTimeout(() => setCallState('ringing'), 2000);
-    } catch (e: any) {
-      alert('发起通话失败: ' + (e.message || ''));
-      setCallActive(null);
-    }
-  };
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!roomId) return;
-    // 加载历史消息
-    const msgs = getRoomMessages(roomId);
-    setMessages(msgs);
-
-    // 获取房间名
-    const mc = getMatrixClient();
-    if (mc) {
-      const room = mc.getRoom(roomId);
-      if (room) {
-        setRoomName(room.name || room.getDefaultRoomName(mc.getUserId()) || '聊天');
-      }
-    }
-
-    // 监听新消息
-    const unsub = onMessage((rid, msg) => {
-      if (rid === roomId) {
-        setMessages(prev => [...prev, msg]);
-      }
-    });
-
-    return unsub;
+    api.getMessages(roomId).then(setMessages).catch(() => {});
+    api.getConversations().then((convs: any[]) => {
+      const conv = convs.find((c: any) => c.id === roomId);
+      if (conv) setRoomName(conv.name);
+    }).catch(() => {});
   }, [roomId]);
 
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
   const handleSend = async () => {
-    if (!input.trim() || !roomId) return;
+    if (!input.trim()) return;
     const content = input.trim();
     setInput('');
-    // 乐观更新
-    const temp = { id: 'temp-' + Date.now(), from: 'me', content, time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }), type: 'm.room.message' };
-    setMessages(prev => [...prev, temp]);
-    // 发送到 Matrix
+    const tempId = 'temp-' + Date.now();
+    setMessages((prev: any[]) => [...prev, {
+      id: tempId, sender: { username: 'me' }, content, createdAt: new Date().toISOString()
+    }]);
     try {
-      await sendMessage(roomId, content);
+      const msg = await api.sendMessage(roomId, content);
+      setMessages((prev: any[]) => prev.map((m: any) => m.id === tempId ? msg : m));
     } catch {
-      // 发送失败，移除临时消息
-      setMessages(prev => prev.filter(m => m.id !== temp.id));
+      setMessages((prev: any[]) => prev.filter((m: any) => m.id !== tempId));
     }
+  };
+
+  const handleCall = (video: boolean) => {
+    startCall({ conversationId: roomId, remoteUserId: '', remoteUserName: roomName, video });
+  };
+
+  const formatTime = (t: string) => {
+    const d = new Date(t);
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
 
   return (
     <div className="h-full flex flex-col" style={{ background: '#080b12' }}>
-      {/* 头部 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', background: '#0f141c', borderBottom: '1px solid #1c2636' }}>
-        <button onClick={() => navigate('/messages')} style={{ background: 'none', border: 'none', color: '#7d8590', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>‹</button>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#151b26', border: '1px solid #1c2636', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>💬</div>
+        <button onClick={() => navigate('/messages')} style={{ background: 'none', border: 'none', color: '#7d8590', fontSize: 22, cursor: 'pointer', padding: '4px 8px' }}>&#8249;</button>
+        <div style={{ width: 36, height: 36, borderRadius: 10, background: '#151b26', border: '1px solid #1c2636', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>&#128172;</div>
         <div style={{ flex: 1 }}>
           <div style={{ color: '#e6edf3', fontWeight: 600, fontSize: 14 }}>{roomName}</div>
           <div style={{ color: '#484f58', fontSize: 11 }}>{messages.length} 条消息</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={() => startCall('voice')}
-            style={{ width: 32, height: 32, borderRadius: 8, background: '#151b26', border: '1px solid #1c2636', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7d8590' }}
-            title="语音通话">📞</button>
-          <button onClick={() => startCall('video')}
-            style={{ width: 32, height: 32, borderRadius: 8, background: '#151b26', border: '1px solid #1c2636', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#7d8590' }}
-            title="视频通话">📹</button>
-        </div>
+        <button onClick={() => handleCall(false)} style={{ background: 'none', border: 'none', color: '#3fb950', fontSize: 20, cursor: 'pointer', padding: 6 }}>&#128222;</button>
+        <button onClick={() => handleCall(true)} style={{ background: 'none', border: 'none', color: '#D4AF37', fontSize: 20, cursor: 'pointer', padding: 6 }}>&#128250;</button>
       </div>
 
-      {/* 消息列表 */}
-      <div className="flex-1 overflow-y-auto" style={{ padding: '16px 16px 8px' }} ref={(el: HTMLDivElement | null) => { if (el) el.scrollTop = el.scrollHeight; }}>
-        {messages.map((msg) => {
-          const mc = getMatrixClient();
-          const isMe = msg.from === 'me' || msg.from === mc?.getUserId();
-          return (
-            <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 16 }}>
-              <div style={{ maxWidth: '78%' }}>
-                <div style={{
-                  padding: '10px 14px',
-                  borderRadius: isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                  background: isMe ? 'linear-gradient(135deg, #D4AF37, #B8962E)' : '#151b26',
-                  color: isMe ? '#000' : '#e6edf3',
-                  fontSize: 13, lineHeight: 1.5,
-                  border: isMe ? 'none' : '1px solid #1c2636',
-                }}>
-                  {msg.content}
-                </div>
-                <div style={{ textAlign: isMe ? 'right' : 'left', marginTop: 4, padding: '0 4px' }}>
-                  <span style={{ fontSize: 10, color: '#484f58' }}>{msg.time}</span>
-                </div>
-              </div>
+      <div className="flex-1 overflow-y-auto" style={{ padding: '16px 16px 8px' }}>
+        {messages.length === 0 ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 36, opacity: 0.3, marginBottom: 8 }}>&#128172;</div>
+              <p style={{ color: '#484f58', fontSize: 13 }}>暂无消息</p>
             </div>
-          );
-        })}
+          </div>
+        ) : (
+          messages.map((msg: any) => {
+            const isMe = msg.senderId === user?.id || msg.id?.startsWith('temp-');
+            const initial = isMe ? '我' : (msg.sender?.displayName?.[0] || roomName[0] || '?');
+            const avatarColor = isMe ? '#D4AF37' : '#30363d';
+            const bubbleColor = isMe ? '#151b26' : 'linear-gradient(135deg, #D4AF37, #B8962E)';
+            const textColor = isMe ? '#e6edf3' : '#000';
+            const bubbleRadius = isMe ? '14px 14px 14px 4px' : '14px 14px 4px 14px';
+            return (
+              <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-start' : 'flex-end', marginBottom: 16, alignItems: 'flex-end' }}>
+                {isMe && (
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#fff', flexShrink: 0, marginRight: 8 }}>
+                    {initial}
+                  </div>
+                )}
+                <div style={{ maxWidth: '70%' }}>
+                  <div style={{ padding: '10px 14px', borderRadius: bubbleRadius, background: bubbleColor, color: textColor, fontSize: 13, lineHeight: 1.5 }}>
+                    {msg.content}
+                  </div>
+                  <div style={{ textAlign: isMe ? 'left' : 'right', marginTop: 4, padding: '0 4px' }}>
+                    <span style={{ fontSize: 10, color: '#484f58' }}>{formatTime(msg.createdAt)}</span>
+                  </div>
+                </div>
+                {!isMe && (
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#D4AF37', flexShrink: 0, marginLeft: 8 }}>
+                    {initial}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+        <div ref={bottomRef} />
       </div>
 
-      {/* 输入框 */}
       <div style={{ padding: '12px 16px', borderTop: '1px solid #1c2636', background: '#0f141c' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <input type="text" placeholder="输入消息..." value={input}
@@ -125,21 +113,10 @@ export default function ChatRoom() {
             style={{ flex: 1, padding: '10px 14px', background: '#0d1117', border: '1px solid #1c2636', borderRadius: 10, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
           <button onClick={handleSend}
             style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #D4AF37, #B8962E)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#000', flexShrink: 0 }}>
-            ↗
+            &#8593;
           </button>
         </div>
       </div>
-
-      {/* 通话界面 */}
-      {callActive && (
-        <CallScreen
-          roomName={roomName}
-          direction="outgoing"
-          callType={callActive}
-          callState={callState}
-          onHangup={() => { setCallActive(null); setCallState('calling'); }}
-        />
-      )}
     </div>
   );
 }

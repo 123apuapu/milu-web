@@ -43,8 +43,7 @@ export default function App() {
   }, [token, user?.id]);
 
   useEffect(() => {
-    const unsub1 = bindStateChange(() => setCalling(callState.state !== 'idle'));
-    return () => unsub1();
+    bindStateChange(() => setCalling(callState.state !== 'idle'));
   }, []);
 
   return (

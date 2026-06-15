@@ -3,8 +3,8 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 const tabs = [
   { path: '/messages', label: '消息', icon: '💬' },
   { path: '/contacts', label: '通讯录', icon: '👥' },
+  { path: '/moments', label: '动态', icon: '📱' },
   { path: '/official', label: '官网', icon: '🏛️' },
-  { path: '/groups', label: '群聊', icon: '👪' },
   { path: '/profile', label: '我', icon: '👤' },
 ];
 

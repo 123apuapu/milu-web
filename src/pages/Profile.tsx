@@ -7,14 +7,12 @@ const menuItems = [
   { icon: '📋', label: '个人资料', path: '/profile-edit' },
   { icon: '🪪', label: '实名认证', path: '/verification' },
   { icon: '🔐', label: '账号安全', path: '/security' },
-  { icon: '📦', label: '我的送拍', path: '/send-pledge' },
   { icon: '💳', label: '我的钱包', path: '/wallet' },
   { icon: '🛡️', label: '通用设置', path: '/settings' },
+  { icon: '📦', label: '我的送拍', path: '/send-pledge', staffOnly: true },
   { icon: '📞', label: '投诉', path: '/complaint' },
   { icon: 'ℹ️', label: '关于我们', path: '/about' },
 ];
-
-const auctionRules = ['征集规则', '违约名单', '征集师背书'];
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -26,6 +24,7 @@ export default function Profile() {
   useEffect(() => {
     api.getProfile().then((p) => {
       setAuthUser({
+        userId: p.userId || 0,
         id: p.id,
         displayName: p.displayName || p.username,
         nickname: p.nickname || p.username,
@@ -39,11 +38,15 @@ export default function Profile() {
     }).catch(() => {});
   }, []);
 
+  const isStaff = user?.role === 'admin' || user?.role === 'manager' || user?.role === 'customer_service';
   const roleLabel: Record<string, string> = {
     admin: '管理员',
     manager: '客户经理',
+    customer_service: '客服',
     user: '买家',
   };
+
+  const filteredItems = menuItems.filter(item => !item.staffOnly || isStaff);
 
   return (
     <div className="h-full flex flex-col bg-[#0d1117]">
@@ -54,27 +57,19 @@ export default function Profile() {
           </div>
           <div className="flex-1">
             <h2 className="text-lg font-bold text-white">{user?.nickname || user?.displayName || '用户'}</h2>
-            <p className="text-[#8b949e] text-xs mt-0.5">ID: {user?.id?.slice(0, 12) || '****'}</p>
+            <p className="text-[#D4AF37] text-xs mt-0.5 font-mono">
+              用户{100000 + (user?.userId || 0)}
+            </p>
             <p className="text-[#D4AF37] text-xs mt-0.5">{roleLabel[user?.role || 'user'] || '买家'}</p>
           </div>
         </div>
       </div>
 
-      <div className="mx-4 mb-4 bg-[#161b22] rounded-lg border border-[#30363d] overflow-hidden">
-        {auctionRules.map((rule, i) => (
-          <button key={rule}
-            className={`w-full flex items-center justify-between px-4 py-3 ${i < auctionRules.length - 1 ? 'border-b border-[#30363d]' : ''} active:bg-[#1c2128]`}>
-            <span className="text-sm text-[#8b949e]">{rule}</span>
-            <span className="text-[#30363d]">›</span>
-          </button>
-        ))}
-      </div>
-
       <div className="mx-4 bg-[#161b22] rounded-lg border border-[#30363d] overflow-hidden">
-        {menuItems.map((item, i) => (
+        {filteredItems.map((item, i) => (
           <button key={item.label}
             onClick={() => item.path && navigate(item.path)}
-            className={`w-full flex items-center gap-3 px-4 py-3.5 ${i < menuItems.length - 1 ? 'border-b border-[#30363d]' : ''} active:bg-[#1c2128]`}>
+            className={`w-full flex items-center gap-3 px-4 py-3.5 ${i < filteredItems.length - 1 ? 'border-b border-[#30363d]' : ''} active:bg-[#1c2128]`}>
             <span className="text-lg">{item.icon}</span>
             <span className="text-sm text-white flex-1 text-left">{item.label}</span>
             {item.label === '我的钱包' && balance !== null && (
@@ -85,7 +80,6 @@ export default function Profile() {
         ))}
       </div>
 
-      {/* 管理后台入口（管理员/经理可见） */}
       {(user?.role === 'admin' || user?.role === 'manager') && (
         <div className="mx-4 mt-4 bg-[#161b22] rounded-lg border border-[#D4AF37]/30 overflow-hidden">
           <a href="/admin/"

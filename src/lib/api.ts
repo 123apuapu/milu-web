@@ -25,7 +25,6 @@ async function request(path: string, options: RequestInit = {}) {
   return data;
 }
 
-/** 带token的admin fetch */
 export async function adminFetch(path: string, options: RequestInit = {}) {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -59,6 +58,29 @@ export const api = {
   getAuction: (id: string) => request(`/auction/${id}`),
   inquiryPledge: (code: string) => request(`/auction/inquiry/${code}`),
   getPledges: () => request('/pledge'),
+
+  // 聊天
+  getConversations: () => request('/chat/conversations'),
+  getMessages: (convId: string) => request(`/chat/messages/${convId}`),
+  sendMessage: (convId: string, content: string) =>
+    request(`/chat/messages/${convId}`, { method: 'POST', body: JSON.stringify({ content }) }),
+  createConversation: (participantIds: string[], name?: string, isGroup?: boolean) =>
+    request('/chat/conversations', { method: 'POST', body: JSON.stringify({ participantIds, name, isGroup: !!isGroup }) }),
+  getUsers: () => request('/chat/users/list'),
+  searchUsers: (q: string) => request(`/chat/users/search?q=${encodeURIComponent(q)}`),
+
+  // 动态（朋友圈）
+  getMoments: (page: number = 1) => request(`/moment?page=${page}`),
+  createMoment: (content: string, images?: string[]) =>
+    request('/moment', { method: 'POST', body: JSON.stringify({ content, images }) }),
+  uploadMomentImage: (image: string) =>
+    request('/moment/upload', { method: 'POST', body: JSON.stringify({ image }) }),
+  toggleLike: (momentId: string) =>
+    request(`/moment/${momentId}/like`, { method: 'POST' }),
+  addComment: (momentId: string, content: string) =>
+    request(`/moment/${momentId}/comment`, { method: 'POST', body: JSON.stringify({ content }) }),
+  deleteMoment: (momentId: string) =>
+    request(`/moment/${momentId}`, { method: 'DELETE' }),
 };
 
 export default api;
