@@ -62,8 +62,10 @@ export const api = {
   // 聊天
   getConversations: () => request('/chat/conversations'),
   getMessages: (convId: string) => request(`/chat/messages/${convId}`),
-  sendMessage: (convId: string, content: string) =>
-    request(`/chat/messages/${convId}`, { method: 'POST', body: JSON.stringify({ content }) }),
+  sendMessage: (convId: string, content: string, type?: string) =>
+    request(`/chat/messages/${convId}`, { method: 'POST', body: JSON.stringify({ content, type: type || 'text' }) }),
+  uploadImage: (image: string) =>
+    request('/chat/upload', { method: 'POST', body: JSON.stringify({ image }) }),
   createConversation: (participantIds: string[], name?: string, isGroup?: boolean) =>
     request('/chat/conversations', { method: 'POST', body: JSON.stringify({ participantIds, name, isGroup: !!isGroup }) }),
   getUsers: () => request('/chat/users/list'),
