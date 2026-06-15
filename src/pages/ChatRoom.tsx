@@ -88,11 +88,11 @@ export default function ChatRoom() {
             const avatarColor = isMe ? '#D4AF37' : '#30363d';
             const bubbleColor = isMe ? '#151b26' : 'linear-gradient(135deg, #D4AF37, #B8962E)';
             const textColor = isMe ? '#e6edf3' : '#000';
-            const bubbleRadius = isMe ? '14px 14px 14px 4px' : '14px 14px 4px 14px';
+            const bubbleRadius = isMe ? '14px 14px 4px 14px' : '14px 14px 14px 4px';
             return (
-              <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-start' : 'flex-end', marginBottom: 16, alignItems: 'flex-end' }}>
+              <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 16, alignItems: 'flex-end' }}>
                 {isMe && (
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#fff', flexShrink: 0, marginRight: 8 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#fff', flexShrink: 0, marginLeft: 8 }}>
                     {initial}
                   </div>
                 )}
@@ -100,12 +100,12 @@ export default function ChatRoom() {
                   <div style={{ padding: '10px 14px', borderRadius: bubbleRadius, background: bubbleColor, color: textColor, fontSize: 13, lineHeight: 1.5 }}>
                     {msg.content}
                   </div>
-                  <div style={{ textAlign: isMe ? 'left' : 'right', marginTop: 4, padding: '0 4px' }}>
+                  <div style={{ textAlign: isMe ? 'right' : 'left', marginTop: 4, padding: '0 4px' }}>
                     <span style={{ fontSize: 10, color: '#484f58' }}>{formatTime(msg.createdAt)}</span>
                   </div>
                 </div>
                 {!isMe && (
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#D4AF37', flexShrink: 0, marginLeft: 8 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: avatarColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 600, color: '#D4AF37', flexShrink: 0, marginRight: 8 }}>
                     {initial}
                   </div>
                 )}
