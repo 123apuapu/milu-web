@@ -20,9 +20,14 @@ export const callState: any = {
 };
 
 let onStateChange: Array<() => void> = [];
+let chatMessageListeners: Array<(msg: any) => void> = [];
 export function bindStateChange(fn: () => void) {
   onStateChange.push(fn);
   return () => { onStateChange = onStateChange.filter(f => f !== fn); };
+}
+export function addChatMessageListener(fn: (msg: any) => void) {
+  chatMessageListeners.push(fn);
+  return () => { chatMessageListeners = chatMessageListeners.filter(f => f !== fn); };
 }
 
 function setState(s: string) {
@@ -112,6 +117,11 @@ export function connectSocket(userId: string) {
   socket.on('call:end', (_data: any) => {
     console.log('[DEBUG] recv call:end, myState:', callState.state);
     if (callState.state !== 'idle') hangup(false);
+  });
+
+  // 实时消息推送
+  socket.on('chat:message', (msg: any) => {
+    chatMessageListeners.forEach(fn => fn(msg));
   });
 }
 

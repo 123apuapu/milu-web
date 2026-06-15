@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
-import { startCall, getSocket } from '../lib/webrtc';
+import { startCall, addChatMessageListener } from '../lib/webrtc';
 import { useAuthStore } from '../stores/authStore';
 
 export default function ChatRoom() {
@@ -23,7 +23,17 @@ export default function ChatRoom() {
   }, [roomId]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-  useEffect(() => {    const sock = getSocket();    if (!sock) return;    const h = (msg: any) => {      if (msg.conversationId === roomId) {        setMessages((prev: any[]) => {          if (prev.some((m: any) => m.id === msg.id)) return prev;          return [...prev, msg];        });      }    };    sock.on('chat:message', h);    return () => sock.off('chat:message', h);  }, [roomId]);
+  useEffect(() => {
+    const unsub = addChatMessageListener((msg: any) => {      if (msg.senderId === user?.id) return;
+      if (msg.conversationId === roomId) {
+        setMessages((prev: any[]) => {
+          if (prev.some((m: any) => m.id === msg.id)) return prev;
+          return [...prev, msg];
+        });
+      }
+    });
+    return () => unsub();
+  }, [roomId]);
 
   const handleSend = async () => {
     if (!input.trim()) return;
