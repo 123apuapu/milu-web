@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>尚龙阁拍卖行 | SHANLONGGE AUCTION</title>
+<meta name="description" content="尚龙阁拍卖行 - 中国古董、字画、瓷器、玉器专业拍卖平台。征集委托、拍卖预展、在线竞拍。">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:"Noto Sans SC","PingFang SC","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;background:#fff;color:#333;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+button{cursor:pointer;font-family:inherit}
+.container{max-width:1240px;margin:0 auto;padding:0 24px}
+@media(max-width:768px){.container{padding:0 16px}}
+
+/* ===== Variables ===== */
+:root{
+  --gold:#B8952E;
+  --gold-light:#D4AF37;
+  --gold-dark:#8B6914;
+  --red:#C8102E;
+  --dark:#1a1a1a;
+  --text:#333;
+  --text-light:#767676;
+  --text-muted:#999;
+  --border:#e5e5e5;
+  --bg-light:#f7f7f7;
+  --white:#fff;
+  --font-serif:"Noto Serif SC","STSong","SimSun",serif;
+}
+
+/* ===== Top Bar ===== */
+.top-bar{background:var(--dark);color:rgba(255,255,255,.6);font-size:11px;height:36px;display:flex;align-items:center}
+.top-bar .container{display:flex;justify-content:space-between;align-items:center;width:100%}
+.top-bar-links{display:flex;gap:20px}
+.top-bar-links a{color:rgba(255,255,255,.6);transition:color .2s;font-size:11px;letter-spacing:.5px}
+.top-bar-links a:hover{color:var(--gold-light)}
+.top-bar-right{display:flex;gap:16px;align-items:center}
+.top-bar-right a{color:rgba(255,255,255,.6);font-size:11px;transition:color .2s}
+.top-bar-right a:hover{color:var(--gold-light)}
+.lang-switch{display:flex;gap:8px}
+.lang-switch a{padding:2px 6px;border-radius:2px;font-size:10px}
+.lang-switch a.active{color:#fff;background:rgba(255,255,255,.15)}
+
+/* ===== Header ===== */
+.header{background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.header-inner{display:flex;align-items:center;height:68px;gap:32px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0}
+.logo-text{font-size:20px;font-weight:700;color:var(--dark);letter-spacing:2px;white-space:nowrap}
+.logo-sub{font-size:9px;color:var(--text-light);letter-spacing:1px;margin-top:-1px;text-transform:uppercase}
+.header-nav{display:flex;gap:4px;flex:1}
+.header-nav a{padding:8px 18px;font-size:13px;font-weight:500;color:var(--text);transition:all .2s;border-radius:4px;letter-spacing:.5px}
+.header-nav a:hover,.header-nav a.active{color:var(--gold);background:rgba(184,149,46,.06)}
+.header-actions{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.header-search{display:flex;align-items:center;border:1px solid var(--border);border-radius:4px;overflow:hidden;transition:border-color .2s}
+.header-search:focus-within{border-color:var(--gold)}
+.header-search input{border:none;padding:7px 12px;font-size:12px;width:180px;outline:none;background:var(--bg-light)}
+.header-search button{border:none;background:var(--gold);color:#fff;padding:7px 14px;font-size:12px;transition:background .2s}
+.header-search button:hover{background:var(--gold-dark)}
+.header-btn{font-size:12px;color:var(--text);transition:color .2s;white-space:nowrap;padding:6px 14px;border-radius:4px;border:1px solid var(--border)}
+.header-btn:hover{color:var(--gold);border-color:var(--gold)}
+.header-btn-primary{background:var(--gold);color:#fff;border-color:var(--gold)}
+.header-btn-primary:hover{background:var(--gold-dark);color:#fff}
+
+/* ===== Hero Banner ===== */
+.hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#1a1a2e,#16213e);min-height:520px;display:flex;align-items:center}
+.hero-bg{position:absolute;inset:0;opacity:.15;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");background-size:120px}
+.hero-container{position:relative;z-index:1;width:100%;max-width:1240px;margin:0 auto;padding:60px 24px}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(212,175,55,.12);color:var(--gold-light);padding:6px 16px;border-radius:2px;font-size:11px;letter-spacing:2px;margin-bottom:24px;border:1px solid rgba(212,175,55,.2)}
+.hero-tag::before{content:'';width:4px;height:4px;background:var(--gold-light);border-radius:50%}
+.hero-title{font-size:52px;font-weight:300;color:#fff;line-height:1.15;margin-bottom:16px;letter-spacing:3px}
+.hero-title strong{font-weight:700;background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:16px;color:rgba(255,255,255,.65);max-width:540px;margin-bottom:36px;line-height:1.8}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.hero-btn{display:inline-flex;align-items:center;gap:8px;padding:14px 32px;border-radius:4px;font-size:13px;font-weight:600;transition:all .25s}
+.hero-btn-primary{background:linear-gradient(135deg,var(--gold-light),var(--gold-dark));color:#fff;border:none}
+.hero-btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(184,149,46,.35)}
+.hero-btn-outline{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.25)}
+.hero-btn-outline:hover{border-color:var(--gold-light);color:var(--gold-light)}
+.hero-stats{display:flex;gap:40px;margin-top:48px}
+.hero-stat{text-align:left}
+.hero-stat-num{font-size:30px;font-weight:700;color:var(--gold-light);letter-spacing:1px}
+.hero-stat-label{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px;letter-spacing:1px}
+
+/* ===== Section ===== */
+.section{padding:72px 0}
+.section-white{background:var(--white)}
+.section-light{background:var(--bg-light)}
+.section-header{text-align:center;margin-bottom:48px}
+.section-eyebrow{color:var(--gold);font-size:11px;letter-spacing:3px;margin-bottom:10px;font-weight:600}
+.section-title{font-size:30px;font-weight:600;color:var(--dark);margin-bottom:10px;letter-spacing:1px}
+.section-desc{font-size:14px;color:var(--text-light);max-width:520px;margin:0 auto;line-height:1.7}
+
+/* ===== Auction Series Cards ===== */
+.auction-series{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:768px){.auction-series{grid-template-columns:1fr}}
+.auction-card{position:relative;overflow:hidden;border-radius:4px;cursor:pointer;min-height:360px;transition:all .3s}
+.auction-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.12)}
+.auction-card-bg{position:absolute;inset:0;background-size:cover;background-position:center;transition:transform .5s}
+.auction-card:hover .auction-card-bg{transform:scale(1.05)}
+.auction-card-overlay{position:absolute;inset:0;background:linear-gradient(transparent 30%,rgba(0,0,0,.75));display:flex;flex-direction:column;justify-content:flex-end;padding:32px}
+.auction-card-season{font-size:11px;color:var(--gold-light);letter-spacing:2px;margin-bottom:8px;font-weight:600}
+.auction-card-name{font-size:22px;font-weight:600;color:#fff;margin-bottom:6px;letter-spacing:1px}
+.auction-card-date{font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px}
+.auction-card-desc{font-size:13px;color:rgba(255,255,255,.55);line-height:1.6;max-width:360px}
+.auction-card-cta{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:12px;color:var(--gold-light);font-weight:600;transition:gap .2s}
+.auction-card:hover .auction-card-cta{gap:10px}
+
+/* ===== About ===== */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+@media(max-width:900px){.about-grid{grid-template-columns:1fr;gap:32px}}
+.about-content h2{font-size:28px;font-weight:600;margin-bottom:16px;letter-spacing:1px}
+.about-content p{font-size:14px;color:var(--text-light);margin-bottom:14px;line-height:1.8}
+.about-content p:last-of-type{margin-bottom:24px}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.about-stat{text-align:center;padding:20px;background:var(--bg-light);border-radius:4px}
+.about-stat-num{font-size:26px;font-weight:700;color:var(--gold)}
+.about-stat-label{font-size:11px;color:var(--text-light);margin-top:4px}
+.about-image{width:100%;height:420px;border-radius:4px;overflow:hidden;position:relative;background:linear-gradient(135deg,#2a1a0a,#4a2a1a)}
+.about-image img{width:100%;height:100%;object-fit:cover;opacity:.4}
+
+/* ===== Services ===== */
+.services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+@media(max-width:900px){.services-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.services-grid{grid-template-columns:1fr}}
+.service-card{background:var(--white);border:1px solid var(--border);padding:28px 24px;text-align:center;transition:all .25s;border-radius:4px}
+.service-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.06);border-color:var(--gold)}
+.service-icon{font-size:28px;margin-bottom:14px;display:block}
+.service-name{font-size:15px;font-weight:600;color:var(--dark);margin-bottom:6px}
+.service-desc{font-size:12px;color:var(--text-light);line-height:1.7}
+
+/* ===== Footer ===== */
+.footer{background:var(--dark);color:rgba(255,255,255,.6);padding:56px 0 0}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;padding-bottom:36px;border-bottom:1px solid rgba(255,255,255,.08)}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr;gap:28px}}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr}}
+.footer-brand .logo-mark{margin-bottom:12px}
+.footer-brand p{font-size:13px;line-height:1.8;color:rgba(255,255,255,.45);max-width:300px;margin-top:8px}
+.footer h4{color:rgba(255,255,255,.85);font-size:13px;margin-bottom:14px;letter-spacing:1px;font-weight:600}
+.footer a{display:block;font-size:13px;color:rgba(255,255,255,.45);padding:4px 0;transition:color .2s}
+.footer a:hover{color:var(--gold-light)}
+.footer-bottom{padding:20px 0;font-size:11px;text-align:center;color:rgba(255,255,255,.25)}
+.footer-social{display:flex;gap:12px;margin-top:16px}
+.footer-social a{width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;padding:0}
+.footer-social a:hover{border-color:var(--gold-light);color:var(--gold-light)}
+
+@media(max-width:768px){
+  .header-nav,.header-search{display:none}
+  .hero-title{font-size:32px}
+  .hero-stats{gap:20px}
+  .hero-stat-num{font-size:22px}
+  .hero-container{padding:40px 16px}
+  .section{padding:48px 0}
+  .section-title{font-size:22px}
+  .auction-card{min-height:260px}
+}
+@media(max-width:480px){
+  .hero-title{font-size:26px}
+  .hero-actions{flex-direction:column}
+  .hero-btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Top Bar ===== -->
+<div class="top-bar">
+  <div class="container">
+    <div class="top-bar-links">
+      <a href="/">🏛 尚龙阁拍卖行</a>
+      <a href="/app/">会员中心</a>
+    </div>
+    <div class="top-bar-right">
+      <div class="lang-switch">
+        <a href="#" class="active">中文</a>
+        <a href="#">EN</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="/" class="logo">
+        <div class="logo-mark">尚</div>
+        <div>
+          <div class="logo-text">尚龙阁</div>
+          <div class="logo-sub">SHANLONGGE AUCTION</div>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="/" class="active">首页</a>
+        <a href="#auctions">拍卖会</a>
+        <a href="#about">关于我们</a>
+        <a href="#services">服务</a>
+        <a href="#contact">联系</a>
+      </nav>
+      <div class="header-actions">
+        <div class="header-search">
+          <input type="text" placeholder="搜索拍品..." id="searchInput">
+          <button onclick="alert('搜索功能开发中')">搜索</button>
+        </div>
+        <a href="/app/" class="header-btn">登录</a>
+        <a href="/app/?register=1" class="header-btn header-btn-primary">注册</a>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Hero ===== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-container">
+    <div class="hero-tag">2026 春季拍卖会</div>
+    <h1 class="hero-title">传承经典 · <strong>价值永恒</strong></h1>
+    <p class="hero-desc">尚龙阁2026春季艺术品拍卖会汇聚中国历代书画、瓷器珍玩、玉器杂项等艺术精品，诚邀各界藏家共襄盛举。</p>
+    <div class="hero-actions">
+      <a href="#auctions" class="hero-btn hero-btn-primary">浏览拍卖会 →</a>
+      <a href="#about" class="hero-btn hero-btn-outline">了解尚龙阁</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">200+</div><div class="hero-stat-label">精品拍品</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-label">专业品类</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">98%</div><div class="hero-stat-label">成交率</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">5,000+</div><div class="hero-stat-label">注册会员</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Auction Series ===== -->
+<section class="section" id="auctions">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">— AUCTION SERIES —</div>
+      <h2 class="section-title">拍卖系列</h2>
+      <p class="section-desc">尚龙阁全年拍卖计划，各季精品纷呈</p>
+    </div>
+    <div class="auction-series">
+      <div class="auction-card">
+        <div class="auction-card-bg" style="background-image:linear-gradient(135deg,#1a1a2e 0%,#2a1a0a 50%,#0f3460 100%)"></div>
+        <div class="auction-card-overlay">
+          <div class="auction-card-season">2026 · 春季</div>
+          <div class="auction-card-name">春季艺术品拍卖会</div>
+          <div class="auction-card-date">2026年6月 · 上海</div>
+          <div class="auction-card-desc">中国书画、瓷器、玉器、杂项等全品类春季大拍，汇聚300余件艺术珍品，预展将于6月15日开放。</div>
+          <span class="auction-card-cta">查看详情 →</span>
+        </div>
+      </div>
+      <div class="auction-card">
+        <div class="auction-card-bg" style="background:linear-gradient(135deg,#0a1a2a 0%,#1a2a0a 50%,#2a0a1a 100%)"></div>
+        <div class="auction-card-overlay">
+          <div class="auction-card-season">2026 · 夏季</div>
+          <div class="auction-card-name">夏季精品专场</div>
+          <div class="auction-card-date">2026年9月 · 上海</div>
+          <div class="auction-card-desc">聚焦精品专场，推出宫廷艺术、佛教艺术专题拍卖，精选50件重要宫廷器物及佛教艺术珍品。</div>
+          <span class="auction-card-cta">查看详情 →</span>
+        </div>
+      </div>
+      <div class="auction-card">
+        <div class="auction-card-bg" style="background:linear-gradient(135deg,#1a0a2a 0%,#0a1a2a 50%,#2a2a0a 100%)"></div>
+        <div class="auction-card-overlay">
+          <div class="auction-card-season">2026 · 秋季</div>
+          <div class="auction-card-name">秋季大拍</div>
+          <div class="auction-card-date">2026年12月 · 上海</div>
+          <div class="auction-card-desc">年度最重要拍卖盛会，全球征集顶级艺术珍品，涵盖中国书画、瓷器、玉器、古籍等多个门类。</div>
+          <span class="auction-card-cta">查看详情 →</span>
+        </div>
+      </div>
+      <div class="auction-card">
+        <div class="auction-card-bg" style="background:linear-gradient(135deg,#2a1a0a 0%,#1a0a00 50%,#0a1a1a 100%)"></div>
+        <div class="auction-card-overlay">
+          <div class="auction-card-season">2027 · 新春</div>
+          <div class="auction-card-name">迎春拍卖会</div>
+          <div class="auction-card-date">2027年3月 · 上海</div>
+          <div class="auction-card-desc">新春首拍，推出迎新纳福主题专场，汇集吉祥寓意藏品，为新一年开启收藏新篇章。</div>
+          <span class="auction-card-cta">查看详情 →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== About ===== -->
+<section class="section section-light" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-content">
+        <div class="section-eyebrow">— ABOUT US —</div>
+        <h2>关于尚龙阁</h2>
+        <p>尚龙阁拍卖行成立于2020年，总部位于上海，是一家专注于中国艺术品拍卖的专业拍卖机构。我们以「传承文化、发现价值」为使命，致力于为藏家提供专业、诚信的艺术品交易服务。</p>
+        <p>尚龙阁拥有一支由多位资深鉴定专家组成的团队，涵盖中国书画、瓷器、玉器、杂项等各大门类。我们严格把控每一件拍品的真伪和质量，确保为买卖双方创造最大价值。我们的专家团队拥有超过20年的行业经验，为每一位客户提供专业的鉴定评估和市场分析。</p>
+        <p>我们秉持「诚信为本、专业为根」的经营理念，通过严格的征集筛选流程、透明的竞价机制和完善的售后服务体系，赢得了广大藏家的信赖与支持。</p>
+        <div class="about-stats">
+          <div class="about-stat"><div class="about-stat-num">200+</div><div class="about-stat-label">专场拍卖</div></div>
+          <div class="about-stat"><div class="about-stat-num">10,000+</div><div class="about-stat-label">成交拍品</div></div>
+          <div class="about-stat"><div class="about-stat-num">5,000+</div><div class="about-stat-label">注册会员</div></div>
+        </div>
+      </div>
+      <div class="about-image">
+        <img src="/images/auctions/lot-porcelain-3.jpg" alt="尚龙阁拍卖行" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Services ===== -->
+<section class="section" id="services">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">— SERVICES —</div>
+      <h2 class="section-title">专业服务</h2>
+      <p class="section-desc">全方位艺术品交易服务，为您的收藏保驾护航</p>
+    </div>
+    <div class="services-grid">
+      <div class="service-card">
+        <span class="service-icon">🔍</span>
+        <div class="service-name">鉴定评估</div>
+        <div class="service-desc">资深专家团队提供免费鉴定估值服务，准确评估藏品市场价值</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📦</span>
+        <div class="service-name">委托送拍</div>
+        <div class="service-desc">便捷的委托送拍流程，专业团队全程跟进，让您的藏品顺利上拍</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">🔨</span>
+        <div class="service-name">在线竞拍</div>
+        <div class="service-desc">实时在线竞拍系统，足不出户参与全球竞价，轻松竞得心仪藏品</div>
+      </div>
+      <div class="service-card">
+        <span class="service-icon">📋</span>
+        <div class="service-name">藏品管理</div>
+        <div class="service-desc">完善的藏品管理系统，随时查看您的竞拍记录和藏品信息</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer class="footer" id="contact">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-mark" style="margin-bottom:8px">尚</div>
+        <p>尚龙阁拍卖行 · 中国艺术品专业拍卖平台<br>上海市静安区南京西路1788号<br>电话：400-888-8888<br>邮箱：info@4.dpjp.cn</p>
+        <div class="footer-social">
+          <a href="#">微</a>
+          <a href="#">博</a>
+          <a href="#">抖</a>
+        </div>
+      </div>
+      <div>
+        <h4>拍卖</h4>
+        <a href="#auctions">春季拍卖</a>
+        <a href="#auctions">夏季专场</a>
+        <a href="#auctions">秋季大拍</a>
+        <a href="#auctions">迎春拍卖</a>
+      </div>
+      <div>
+        <h4>服务</h4>
+        <a href="#">委托送拍</a>
+        <a href="#">在线竞拍</a>
+        <a href="#">鉴定评估</a>
+        <a href="#">物流配送</a>
+      </div>
+      <div>
+        <h4>关于</h4>
+        <a href="#about">公司简介</a>
+        <a href="#">专家团队</a>
+        <a href="#">征集规则</a>
+        <a href="#contact">联系我们</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2026 尚龙阁拍卖行 SHANLONGGE AUCTION. All Rights Reserved. 沪ICP备XXXXXXXX号
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
