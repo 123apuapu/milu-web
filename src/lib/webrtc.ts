@@ -32,10 +32,11 @@ function setState(s: string) {
 }
 
 const ICE: RTCIceServer[] = [
-  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:101.47.73.177:3478' },
   { urls: 'turn:101.47.73.177:3478', username: 'milu', credential: 'milu123' },
 ];
 
+export function getSocket() { return socket; }
 export function connectSocket(userId: string) {
   currentUserId = userId;
   console.log('[DEBUG] connectSocket:', userId?.slice(0, 8));

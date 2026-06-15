@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
+import { getSocket } from '../lib/webrtc';
 export default function Messages() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -12,6 +13,7 @@ export default function Messages() {
     api.getConversations()
       .then(data => { setConversations(data); setLoading(false); })
       .catch(() => setLoading(false));
+useEffect(() => {    const sock = getSocket();    if (!sock) return;    const h = (msg: any) => {      setConversations((prev: any[]) =>        prev.map((c: any) =>          c.id === msg.conversationId            ? { ...c, lastMsg: msg.content, lastTime: msg.createdAt }            : c        )      );    };    sock.on('chat:message', h);    return () => sock.off('chat:message', h);  }, []);
   }, []);
 
   const filtered = conversations.filter((c: any) =>
