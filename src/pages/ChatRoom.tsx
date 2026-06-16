@@ -26,9 +26,13 @@ export default function ChatRoom() {
   const [roomName, setRoomName] = useState('聊天');
   const [showEmoji, setShowEmoji] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [showPlus, setShowPlus] = useState(false);
+  const [showCallSub, setShowCallSub] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const emojiRef = useRef<HTMLDivElement>(null);
+  const plusRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!roomId) return;
@@ -54,11 +58,15 @@ export default function ChatRoom() {
     return () => unsub();
   }, [roomId, user?.id]);
 
-  // 点击外部关闭表情面板
+  // Click outside to close panels
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (emojiRef.current && !emojiRef.current.contains(e.target as Node)) {
         setShowEmoji(false);
+      }
+      if (plusRef.current && !plusRef.current.contains(e.target as Node)) {
+        setShowPlus(false);
+        setShowCallSub(false);
       }
     };
     document.addEventListener('mousedown', handler);
@@ -81,7 +89,7 @@ export default function ChatRoom() {
     }
   };
 
-  const handleImagePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
@@ -93,11 +101,28 @@ export default function ChatRoom() {
         await handleSend(url, 'image');
       };
       reader.readAsDataURL(file);
-    } catch {
-      alert('图片上传失败');
-    }
+    } catch { alert('图片上传失败'); }
     setUploading(false);
     if (fileRef.current) fileRef.current.value = '';
+    setShowPlus(false);
+  };
+
+  const handleCameraPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        const { url } = await api.uploadImage(base64);
+        await handleSend(url, 'image');
+      };
+      reader.readAsDataURL(file);
+    } catch { alert('拍照上传失败'); }
+    setUploading(false);
+    if (cameraRef.current) cameraRef.current.value = '';
+    setShowPlus(false);
   };
 
   const handleEmojiClick = (emoji: string) => {
@@ -106,6 +131,8 @@ export default function ChatRoom() {
   };
 
   const handleCall = (video: boolean) => {
+    setShowPlus(false);
+    setShowCallSub(false);
     startCall({ conversationId: roomId, remoteUserId: '', remoteUserName: roomName, video });
   };
 
@@ -180,8 +207,8 @@ export default function ChatRoom() {
         <div ref={bottomRef} />
       </div>
 
-      {/* 输入区 */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #1c2636', background: '#0f141c', position: 'relative' }}>
+      {/* 输入区 - 微信风格 */}
+      <div ref={plusRef} style={{ padding: '0', borderTop: '1px solid #1c2636', background: '#0f141c', position: 'relative' }}>
         {/* 表情面板 */}
         {showEmoji && (
           <div ref={emojiRef} style={{
@@ -198,27 +225,67 @@ export default function ChatRoom() {
             ))}
           </div>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {/* 图片按钮 */}
-          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImagePick} />
-          <button onClick={() => fileRef.current?.click()} disabled={uploading}
-            style={{ background: 'none', border: 'none', color: '#7d8590', fontSize: 20, cursor: 'pointer', padding: 4 }}>
-            {uploading ? '⏳' : '🖼️'}
-          </button>
-          {/* 表情按钮 */}
-          <button onClick={() => setShowEmoji(!showEmoji)}
-            style={{ background: 'none', border: 'none', color: '#7d8590', fontSize: 20, cursor: 'pointer', padding: 4 }}>
+
+        {/* Plus menu popup */}
+        {showPlus && (
+          <div style={{
+            padding: '16px 20px 8px', background: '#0f141c',
+            borderTop: '1px solid #1c2636',
+          }}>
+            {!showCallSub ? (
+              <div style={{ display: 'flex', gap: 16, justifyContent: 'flex-start' }}>
+                <div onClick={() => cameraRef.current?.click()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', width: 64 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 14, background: '#1a2332', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>📷</div>
+                  <span style={{ fontSize: 11, color: '#7d8590' }}>拍照</span>
+                </div>
+                <div onClick={() => fileRef.current?.click()} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', width: 64 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 14, background: '#1a2332', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>🖼️</div>
+                  <span style={{ fontSize: 11, color: '#7d8590' }}>图片</span>
+                </div>
+                <div onClick={() => setShowCallSub(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', width: 64 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 14, background: '#1a2332', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26 }}>📹</div>
+                  <span style={{ fontSize: 11, color: '#7d8590' }}>视频通话</span>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 20, justifyContent: 'center', alignItems: 'center' }}>
+                <div onClick={() => handleCall(false)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', width: 72 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#1a3a2a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>🎧</div>
+                  <span style={{ fontSize: 12, color: '#e6edf3' }}>语音通话</span>
+                </div>
+                <div onClick={() => handleCall(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer', width: 72 }}>
+                  <div style={{ width: 60, height: 60, borderRadius: '50%', background: '#3a2a1a', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>📹</div>
+                  <span style={{ fontSize: 12, color: '#e6edf3' }}>视频通话</span>
+                </div>
+                <div onClick={() => setShowCallSub(false)} style={{ padding: '8px 24px', background: '#1c2636', borderRadius: 20, cursor: 'pointer', fontSize: 13, color: '#7d8590' }}>
+                  取消
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Hidden file inputs */}
+        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleImagePick} />
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={handleCameraPick} />
+
+        {/* Input bar */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px' }}>
+          {/* Emoji button - left side */}
+          <button onClick={() => { setShowEmoji(!showEmoji); setShowPlus(false); setShowCallSub(false); }}
+            style={{ background: 'none', border: 'none', color: '#7d8590', fontSize: 20, cursor: 'pointer', padding: 4, flexShrink: 0, lineHeight: 1 }}>
             😊
           </button>
-          {/* 输入框 */}
+          {/* Text input */}
           <input type="text" placeholder="输入消息..." value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') handleSend(input); }}
-            style={{ flex: 1, padding: '10px 14px', background: '#0d1117', border: '1px solid #1c2636', borderRadius: 10, color: '#e6edf3', fontSize: 13, outline: 'none' }} />
-          {/* 发送按钮 */}
-          <button onClick={() => handleSend(input)}
-            style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #D4AF37, #B8962E)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 16, color: '#000', flexShrink: 0 }}>
-            &#8593;
+            onClick={() => { setShowPlus(false); setShowCallSub(false); }}
+            style={{ flex: 1, padding: '10px 14px', background: '#0d1117', border: '1px solid #1c2636', borderRadius: 20, color: '#e6edf3', fontSize: 14, outline: 'none' }} />
+          {/* + button - right side */}
+          <button onClick={() => { setShowPlus(!showPlus); setShowEmoji(false); }}
+            style={{ background: 'none', border: 'none', color: '#7d8590', fontSize: 24, cursor: 'pointer', padding: 4, flexShrink: 0, lineHeight: 1, fontWeight: 300 }}>
+            +
           </button>
         </div>
       </div>

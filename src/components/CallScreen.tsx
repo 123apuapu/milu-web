@@ -3,6 +3,7 @@ import { callState, hangup, answerCall, rejectCall, toggleMute, bindStateChange 
 
 export default function CallScreen() {
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const [renderTick, setRenderTick] = useState(0);
   const [duration, setDuration] = useState(0);
   const [muted, setMuted] = useState(false);
@@ -18,11 +19,15 @@ export default function CallScreen() {
     return () => clearInterval(t);
   }, [callState.state, renderTick]);
 
+  // Attach remote stream to video for video calls, audio element for voice calls
   useEffect(() => {
-    if (remoteVideoRef.current && callState.remoteStream) {
+    if (!callState.remoteStream) return;
+    if (callState.isVideo && remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = callState.remoteStream;
+    } else if (!callState.isVideo && remoteAudioRef.current) {
+      remoteAudioRef.current.srcObject = callState.remoteStream;
     }
-  }, [callState.remoteStream, renderTick]);
+  }, [callState.remoteStream, renderTick, callState.isVideo]);
 
   const fmt = (s: number) => {
     const m = Math.floor(s / 60);
@@ -45,10 +50,7 @@ export default function CallScreen() {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
   } as const);
 
-  const b64 = {
-    ...btnBase('#f85149'),
-    width: 72, height: 72, fontSize: 28,
-  };
+  const b64 = { ...btnBase('#f85149'), width: 72, height: 72, fontSize: 28 };
 
   return (
     <div style={{
@@ -56,6 +58,7 @@ export default function CallScreen() {
       background: 'linear-gradient(135deg, #0a0d14 0%, #1a1a2e 100%)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
     }}>
+      {/* Video element for video calls */}
       {isVideo && (
         <div style={{ position: 'absolute', inset: 0 }}>
           <video ref={remoteVideoRef} autoPlay playsInline
@@ -64,6 +67,11 @@ export default function CallScreen() {
             <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #1a1a2e, #0f3460)' }} />
           )}
         </div>
+      )}
+
+      {/* Hidden audio element for voice-only calls - this is critical for audio */}
+      {!isVideo && (
+        <audio ref={remoteAudioRef} autoPlay playsInline style={{ display: 'none' }} />
       )}
 
       <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
@@ -98,8 +106,7 @@ export default function CallScreen() {
               <button onClick={() => answerCall(false)}
                 title="语音接听"
                 style={{
-                  ...btnBase('#3fb950'),
-                  width: 72, height: 72, fontSize: 28,
+                  ...btnBase('#3fb950'), width: 72, height: 72, fontSize: 28,
                   display: 'flex', flexDirection: 'column', gap: 2,
                 }}>
                 <span>📞</span>
@@ -108,8 +115,7 @@ export default function CallScreen() {
               <button onClick={() => answerCall(true)}
                 title="视频接听"
                 style={{
-                  ...btnBase('#3fb950'),
-                  width: 72, height: 72, fontSize: 28,
+                  ...btnBase('#3fb950'), width: 72, height: 72, fontSize: 28,
                   display: 'flex', flexDirection: 'column', gap: 2,
                 }}>
                 <span>📹</span>
